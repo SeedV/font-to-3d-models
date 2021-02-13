@@ -11,14 +11,14 @@ blender -b -P font_to_3d_models.py -- <font_path> <output_dir> <letters>
     glyphs to be generated. Otherwise, all readable ASCII letters (ASCII 33-126)
     are generated.
 
-For launching Blender commandline on Linux/MacOs/Windows, see:
+For launching Blender from command line on Linux/MacOs/Windows, see:
 https://docs.blender.org/manual/en/latest/advanced/command_line/index.html
 
-E.g., on MacOS, to make models for all alphabet letters:
+E.g., on MacOS, to generate models for all alphabet letters:
 
 /Applications/Blender.app/Contents/MacOS/Blender -b -P font_to_3d_models.py -- ./Roboto-Regular.ttf ./out
 
-to make models for A-Z:
+to generate models for A-Z:
 
 /Applications/Blender.app/Contents/MacOS/Blender -b -P font_to_3d_models.py -- ./Roboto-Regular.ttf ./out 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 """
