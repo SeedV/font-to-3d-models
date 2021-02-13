@@ -40,9 +40,13 @@ def create_3d_model(char_code, font_name, outout_dir):
             obj.select_set(True)
             bpy.ops.object.delete()
 
+    char_name = 'U%04X' % char_code
+
     # Adds a new text object.
     bpy.ops.object.text_add()
     text_obj = bpy.data.objects['Text']
+    text_obj.name = char_name
+    text_obj.data.name = char_name
     text_obj.data.body = chr(char_code)
     text_obj.data.size = 2
     text_obj.data.font = bpy.data.fonts[font_name]
@@ -52,7 +56,7 @@ def create_3d_model(char_code, font_name, outout_dir):
     text_obj.select_set(True)
 
     # Exports the model to a fbx file.
-    model_file = 'U%04X.fbx' % char_code
+    model_file = '%s.fbx' % char_name
     model_path = os.path.join(outout_dir, model_file)
 
     print('Generating model for letter %s' % chr(char_code))
