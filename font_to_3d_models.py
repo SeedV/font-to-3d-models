@@ -50,9 +50,9 @@ def create_3d_model(char_code, font_name, outout_dir):
     text_obj.data.body = chr(char_code)
     text_obj.data.size = 2
     text_obj.data.font = bpy.data.fonts[font_name]
-    text_obj.data.extrude = .06
-    text_obj.data.bevel_depth = 0.02
-    text_obj.data.bevel_resolution = 5
+    text_obj.data.extrude = .04
+    text_obj.data.bevel_depth = 0.005
+    text_obj.data.bevel_resolution = 4
     text_obj.select_set(True)
 
     # Exports the model to a fbx file.
@@ -74,10 +74,10 @@ def load_font(font_path):
     bpy.ops.font.open(filepath=font_path)
     if len(bpy.data.fonts) > existed_num:
         font_name = bpy.data.fonts[-1].name
-        print('Font %s from %s is loaded.' % (font_name, font_path))
+        print(f'Font {font_name} from {font_path} is loaded.')
         return font_name
     else:
-        print('Failed to load font %s from %s.' % (font_name, font_path))
+        print(f'Failed to load the font {font_path}')
         return None
 
 
@@ -95,11 +95,11 @@ def main(argv):
 
     output_dir = os.path.abspath(argv[1])
     if (not os.path.isdir(output_dir)):
-        print('Output dir %s does not exist.' % output_dir)
+        print(f'Output dir {output_dir} does not exist.')
         return
 
-    print('Font file: %s' % font_path)
-    print('Output dir: %s' % output_dir)
+    print(f'Font file: {font_path}')
+    print(f'Output dir: {output_dir}')
 
     letters = set()
     if (len(argv) >= 3):
@@ -110,7 +110,7 @@ def main(argv):
             letters.add(char_code)
 
     font_name = load_font(font_path)
-    print('Using font %s to create alphabet models...' % font_name)
+    print(f'Using font {font_name} to create alphabet models...')
 
     # Generates models for the letters.
     for char_code in list(letters):

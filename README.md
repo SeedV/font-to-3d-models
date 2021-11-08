@@ -8,7 +8,7 @@ A Blender script to auto generate 3D models for alphabet letters or Unicode glyp
 
 ## Usage
 
-```
+```shell
 blender -b -P font_to_3d_models.py -- <font_path> <output_dir>
 blender -b -P font_to_3d_models.py -- <font_path> <output_dir> <letters>
 
@@ -29,7 +29,7 @@ E.g., on MacOS, to generate models for all alphabet letters:
 
 to generate models for A-Z:
 
-```
+```shell
 /Applications/Blender.app/Contents/MacOS/Blender -b -P font_to_3d_models.py -- ./Roboto-Regular.ttf ./out 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 ```
 
@@ -37,18 +37,18 @@ to generate models for A-Z:
 
 Feel free to customize the parameters that the script use to create Blender 3D models, e.g.:
 
-```
-    text_obj.data.extrude = .06
-    text_obj.data.bevel_depth = 0.02
-    text_obj.data.bevel_resolution = 5
+```python
+    text_obj.data.extrude = .04
+    text_obj.data.bevel_depth = 0.005
+    text_obj.data.bevel_resolution = 4
 ```
 
 ## Examples
 
 3D models A-Z, using [the Roboto font](https://fonts.google.com/specimen/Roboto):
 
-![](images/1.png)
+![1.png](images/1.png)
 
 3D models '世', '界', '你', '好', using [the Noto Sans SC font](https://fonts.google.com/specimen/Noto+Sans+SC):
 
-![](images/2.png)
+![2.png](images/2.png)
