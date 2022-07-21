@@ -58,10 +58,16 @@ Generate 3D models from "A"(ASCII code 65) to "Z"(ASCII code 90):
 ```
 
 Generate 3D models for the characters in a given string:
+
+```shell
 /Applications/Blender.app/Contents/MacOS/Blender -b -P font_to_3d_models.py -- -f ./Roboto-Regular.ttf -o ./out -l Hello
+```
 
 Generate 3D models for the non-space glyphs in a UTF-8 plain text file:
+
+```shell
 /Applications/Blender.app/Contents/MacOS/Blender -b -P font_to_3d_models.py -- -f ./Roboto-Regular.ttf -o ./out -c ./charset.txt
+```
 
 ## Rendered 3D Glyph Models
 
