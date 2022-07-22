@@ -9,7 +9,8 @@ import sys
 
 
 def create_3d_model(char_code, font_name, outout_dir,
-                    glyph_size, extrude, bevel_depth, bevel_resolution):
+                    glyph_size, extrude, bevel_depth, bevel_resolution,
+                    format):
     """Creates a 3D model for a single letter.
     """
     # Deletes all text objects.
@@ -35,13 +36,24 @@ def create_3d_model(char_code, font_name, outout_dir,
     text_obj.data.bevel_resolution = bevel_resolution
     text_obj.select_set(True)
 
-    # Exports the model to a fbx file.
-    model_file = '%s.fbx' % char_name
+    # Exports the model.
+    if format == 'gltf':
+        ext = 'glb'
+    elif format == 'fbx':
+        ext = 'fbx'
+
+    model_file = f'{char_name}.{ext}'
     model_path = os.path.join(outout_dir, model_file)
 
-    bpy.ops.export_scene.fbx(filepath=model_path,
-        check_existing=False,
-        use_selection=True)
+    if format == 'gltf':
+        bpy.ops.export_scene.gltf(filepath=model_path,
+                                  check_existing=False,
+                                  use_selection=True)
+    elif format == 'fbx':
+        bpy.ops.export_scene.fbx(filepath=model_path,
+                                 export_format='GLB',
+                                 check_existing=False,
+                                 use_selection=True)
 
 
 def load_font(font_path):
@@ -95,7 +107,8 @@ def main(args):
     for char_code in list(glyphs):
         create_3d_model(char_code, font_name, output_dir,
                         args.glyph_size, args.extrude,
-                        args.bevel_depth, args.bevel_resolution)
+                        args.bevel_depth, args.bevel_resolution,
+                        args.format)
 
 
 if __name__ == '__main__':
@@ -116,7 +129,7 @@ on how to locate the [Blender executable] on Windows/macOS/Linux.''')
     parser.add_argument('-f', '--font_file', type=str, required=True,
                         help='The path of the font (.TTF or .OTF) file.')
     parser.add_argument('-o', '--out_dir', type=str, required=True,
-                        help='The dir to save the output .FBX model files.')
+                        help='The dir to save the output 3D model files.')
     parser.add_argument('-c', '--charset_file', type=str,
                         help='The path of a plain text charset file.')
     parser.add_argument('-l', '--letters', type=str,
@@ -133,6 +146,8 @@ on how to locate the [Blender executable] on Windows/macOS/Linux.''')
                         help='The bevel depth of the 3D model.')
     parser.add_argument('--bevel_resolution', type=float, default=4,
                         help='The bevel resolution of the 3D model.')
+    parser.add_argument('--format', choices=['gltf', 'fbx'], default='gltf',
+                        help='The format of the output 3D files.')
 
     try:
         import bpy

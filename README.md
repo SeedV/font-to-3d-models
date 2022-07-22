@@ -25,7 +25,7 @@ options:
   -f FONT_FILE, --font_file FONT_FILE
                         The path of the font (.TTF or .OTF) file. (default: None)
   -o OUT_DIR, --out_dir OUT_DIR
-                        The dir to save the output .FBX model files. (default: None)
+                        The dir to save the output 3D model files. (default: None)
   -c CHARSET_FILE, --charset_file CHARSET_FILE
                         The path of a plain text charset file. (default: None)
   -l LETTERS, --letters LETTERS
@@ -41,6 +41,7 @@ options:
                         The bevel depth of the 3D model. (default: 0.0)
   --bevel_resolution BEVEL_RESOLUTION
                         The bevel resolution of the 3D model. (default: 4)
+  --format {gltf,fbx}   The format of the output 3D files. (default: gltf)
 ```
 
 ## Examples
