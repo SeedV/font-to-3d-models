@@ -64,6 +64,7 @@ def load_font(font_path):
     existed_num = len(bpy.data.fonts)
     bpy.ops.font.open(filepath=font_path)
     if len(bpy.data.fonts) > existed_num:
+        # TODO: Support multiple-fonts in one font file.
         font_name = bpy.data.fonts[-1].name
         print(f'Font "{font_name}" from {font_path} is loaded.')
         return font_name
@@ -71,14 +72,18 @@ def load_font(font_path):
         raise ValueError(f'Failed to load font from {font_path}')
 
 
-def load_charset(charset_path, glyphs):
+def load_charset(glyphs, charset_path):
     """Loads all the non-space glyphs from a UTF-8 plain text file.
     """
     with open(charset_path, encoding='UTF-8') as f:
         for line in f:
             for c in line:
-                if not c.isspace() and c.isprintable():
-                    glyphs.add(ord(c))
+                add_glyph(glyphs, c, ord(c))
+
+
+def add_glyph(glyphs, c, char_code):
+    if not c.isspace() and c.isprintable():
+        glyphs.add(char_code)
 
 
 def main(args):
@@ -96,12 +101,12 @@ def main(args):
     glyphs = set()
     if args.letters:
         for c in args.letters:
-            glyphs.add(ord(c))
+            add_glyph(glyphs, c, ord(c))
     elif args.charset_file:
-        load_charset(args.charset_file, glyphs)
+        load_charset(glyphs, args.charset_file)
     else:
         for char_code in range(args.start_char_code, args.end_char_code + 1):
-            glyphs.add(char_code)
+            add_glyph(glyphs, chr(char_code), char_code)
 
     font_name = load_font(font_path)
     for char_code in list(glyphs):
