@@ -3,7 +3,6 @@
 
 
 import argparse
-from curses.ascii import isspace
 import os
 import sys
 
