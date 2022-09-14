@@ -7,7 +7,7 @@ import os
 import sys
 
 
-def create_3d_model(char_code, font_name, outout_dir,
+def create_3d_model(char_code, font_name, output_dir,
                     glyph_size, extrude, bevel_depth, bevel_resolution,
                     format):
     """Creates a 3D model for a single letter.
@@ -42,7 +42,7 @@ def create_3d_model(char_code, font_name, outout_dir,
         ext = 'fbx'
 
     model_file = f'{char_name}.{ext}'
-    model_path = os.path.join(outout_dir, model_file)
+    model_path = os.path.join(output_dir, model_file)
 
     if format == 'gltf':
         bpy.ops.export_scene.gltf(filepath=model_path,
