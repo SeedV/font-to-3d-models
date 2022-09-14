@@ -4,13 +4,18 @@
 
 import argparse
 import json
+import math
 import os
 import sys
 
 
-def create_3d_icon(icon_name, char_code, font_name, outout_dir,
-                   glyph_size, extrude, bevel_depth, bevel_resolution,
-                   format):
+_ICON_TEXT_OBJ_NAME = 'IconText'
+_ICON_TEXT_MAT_NAME = 'IconTextMat'
+_ICON_CUBE_OBJ_NAME = 'IconCube'
+_ICON_CUBE_MAT_NAME = 'IconCubeMat'
+
+
+def create_3d_icon(icon_name, char_code, font_name, style, output_dir, format):
     """Creates a 3D model for a single letter.
     """
     # Deletes all text objects.
@@ -21,20 +26,66 @@ def create_3d_icon(icon_name, char_code, font_name, outout_dir,
 
     char_name = icon_name
     print('\n-----------------------------------------------------------------')
-    print(f'Generating 3D model for glyph {char_name}')
+    print(f'Generating 3D model for glyph {char_name}, style {style}')
 
-    # Adds a new text object.
-    bpy.ops.object.text_add()
-    text_obj = bpy.data.objects['Text']
-    text_obj.name = char_name
-    text_obj.data.name = char_name
-    text_obj.data.body = chr(char_code)
-    text_obj.data.size = glyph_size
-    text_obj.data.font = bpy.data.fonts[font_name]
-    text_obj.data.extrude = extrude
-    text_obj.data.bevel_depth = bevel_depth
-    text_obj.data.bevel_resolution = bevel_resolution
-    text_obj.select_set(True)
+    if style == 1:
+        bpy.ops.object.text_add(align='WORLD', location=(0,0,0),
+                                rotation=(90 * math.pi / 180, 0, 0),
+                                scale=(1,1,1))
+        bpy.context.object.name = _ICON_TEXT_OBJ_NAME
+        text_obj = bpy.data.objects[_ICON_TEXT_OBJ_NAME]
+        text_obj.data.align_x = 'CENTER'
+        text_obj.data.align_y = 'CENTER'
+        text_obj.data.body = chr(char_code)
+        text_obj.data.size = 1.0
+        text_obj.data.font = bpy.data.fonts[font_name]
+        text_obj.data.extrude = 0.05
+        text_obj.data.bevel_depth = 0.0
+        text_obj.data.bevel_resolution = 4
+        text_obj.location = (0, -.8, 0)
+
+        bpy.ops.mesh.primitive_cube_add(enter_editmode=False,
+                                        align='WORLD',
+                                        location=(0, 0, 0), scale=(.8, .8, .8))
+        bpy.context.object.name = _ICON_CUBE_OBJ_NAME
+        cube_base_obj = bpy.data.objects[_ICON_CUBE_OBJ_NAME]
+        bpy.ops.object.transform_apply(location=False,
+                                       rotation=False,
+                                       scale=True)
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.bevel(offset=0.3, offset_pct=0, segments=5,
+                           release_confirm=True)
+        bpy.ops.object.editmode_toggle()
+
+        text_obj.select_set(True)
+        cube_base_obj.select_set(True)
+        bpy.ops.object.parent_set(type='OBJECT', keep_transform=False)
+        text_obj.select_set(False)
+        cube_base_obj.select_set(False)
+
+        if _ICON_TEXT_MAT_NAME in bpy.data.materials:
+            icon_text_mat = bpy.data.materials[_ICON_TEXT_MAT_NAME]
+        else:
+            icon_text_mat = bpy.data.materials.new(name=_ICON_TEXT_MAT_NAME)
+        text_obj.data.materials.append(icon_text_mat)
+        text_obj.active_material.diffuse_color = (0, 0.318546, 1, 1)
+
+        if _ICON_CUBE_MAT_NAME in bpy.data.materials:
+            icon_cube_mat = bpy.data.materials[_ICON_CUBE_MAT_NAME]
+        else:
+            icon_cube_mat = bpy.data.materials.new(name=_ICON_CUBE_MAT_NAME)
+        cube_base_obj.data.materials.append(icon_cube_mat)
+        cube_base_obj.active_material.diffuse_color = (0, 0, 0, 1)
+
+        text_obj.select_set(True)
+        cube_base_obj.select_set(True)
+
+    elif style == 2:
+        raise NotImplementedError(f'Not implemented style {style}')
+
+    elif style == 3:
+        raise NotImplementedError(f'Not implemented style {style}')
 
     # Exports the model.
     if format == 'gltf':
@@ -42,8 +93,8 @@ def create_3d_icon(icon_name, char_code, font_name, outout_dir,
     elif format == 'fbx':
         ext = 'fbx'
 
-    model_file = f'{char_name}.{ext}'
-    model_path = os.path.join(outout_dir, model_file)
+    model_file = f'{char_name}_s{style}.{ext}'
+    model_path = os.path.join(output_dir, model_file)
 
     if format == 'gltf':
         bpy.ops.export_scene.gltf(filepath=model_path,
@@ -105,10 +156,8 @@ def main(args):
                 icon_name = icon_name.strip('"')
                 json_str = json_str.strip(',')
                 char_code = int(json.loads(json_str)[3], 16)
-                create_3d_icon(icon_name, char_code, font_name, output_dir,
-                               args.glyph_size, args.extrude,
-                               args.bevel_depth, args.bevel_resolution,
-                               args.format)
+                create_3d_icon(icon_name, char_code, font_name,
+                               args.style, output_dir, args.format)
 
 
 if __name__ == '__main__':
@@ -132,16 +181,11 @@ on how to locate the [Blender executable] on Windows/macOS/Linux.''')
     parser.add_argument('-j', '--js_file', type=str,
                         default='fonts/font_awesome_6.2.0/solid.js',
                         help='The path of Font Awesome js file.')
+    parser.add_argument('-s', '--style', type=int, default=1,
+                        choices=[1,2,3],
+                        help='The output style of 3D models.')
     parser.add_argument('-o', '--out_dir', type=str, required=True,
                         help='The dir to save the output 3D model files.')
-    parser.add_argument('--glyph_size', type=float, default=1.0,
-                        help='The size of the generated 3D glyph.')
-    parser.add_argument('--extrude', type=float, default=0.05,
-                        help='The extrude of the 3D model.')
-    parser.add_argument('--bevel_depth', type=float, default=0.0,
-                        help='The bevel depth of the 3D model.')
-    parser.add_argument('--bevel_resolution', type=float, default=4,
-                        help='The bevel resolution of the 3D model.')
     parser.add_argument('--format', choices=['gltf', 'fbx'], default='gltf',
                         help='The format of the output 3D files.')
 
