@@ -29,26 +29,15 @@ def create_3d_icon(icon_name, char_code, font_name, style, output_dir, format):
     print(f'Generating 3D model for glyph {char_name}, style {style}')
 
     if style == 1:
-        bpy.ops.object.text_add(align='WORLD', location=(0,0,0),
-                                rotation=(90 * math.pi / 180, 0, 0),
-                                scale=(1,1,1))
-        bpy.context.object.name = _ICON_TEXT_OBJ_NAME
-        text_obj = bpy.data.objects[_ICON_TEXT_OBJ_NAME]
-        text_obj.data.align_x = 'CENTER'
-        text_obj.data.align_y = 'CENTER'
-        text_obj.data.body = chr(char_code)
-        text_obj.data.size = 1.0
-        text_obj.data.font = bpy.data.fonts[font_name]
-        text_obj.data.extrude = 0.05
-        text_obj.data.bevel_depth = 0.0
-        text_obj.data.bevel_resolution = 4
-        text_obj.location = (0, -.8, 0)
+        text_obj = create_text_obj(char_code, _ICON_TEXT_OBJ_NAME, font_name,
+                                   0.05, 0.0, 4, (0, -.8, 0))
 
         bpy.ops.mesh.primitive_cube_add(enter_editmode=False,
                                         align='WORLD',
-                                        location=(0, 0, 0), scale=(.8, .8, .8))
+                                        location=(0, 0, 0),
+                                        scale=(.8, .8, .8))
         bpy.context.object.name = _ICON_CUBE_OBJ_NAME
-        cube_base_obj = bpy.data.objects[_ICON_CUBE_OBJ_NAME]
+        cube_obj = bpy.data.objects[_ICON_CUBE_OBJ_NAME]
         bpy.ops.object.transform_apply(location=False,
                                        rotation=False,
                                        scale=True)
@@ -59,30 +48,39 @@ def create_3d_icon(icon_name, char_code, font_name, style, output_dir, format):
         bpy.ops.object.editmode_toggle()
 
         text_obj.select_set(True)
-        cube_base_obj.select_set(True)
+        cube_obj.select_set(True)
         bpy.ops.object.parent_set(type='OBJECT', keep_transform=False)
         text_obj.select_set(False)
-        cube_base_obj.select_set(False)
+        cube_obj.select_set(False)
 
-        if _ICON_TEXT_MAT_NAME in bpy.data.materials:
-            icon_text_mat = bpy.data.materials[_ICON_TEXT_MAT_NAME]
-        else:
-            icon_text_mat = bpy.data.materials.new(name=_ICON_TEXT_MAT_NAME)
-        text_obj.data.materials.append(icon_text_mat)
-        text_obj.active_material.diffuse_color = (0, 0.318546, 1, 1)
-
-        if _ICON_CUBE_MAT_NAME in bpy.data.materials:
-            icon_cube_mat = bpy.data.materials[_ICON_CUBE_MAT_NAME]
-        else:
-            icon_cube_mat = bpy.data.materials.new(name=_ICON_CUBE_MAT_NAME)
-        cube_base_obj.data.materials.append(icon_cube_mat)
-        cube_base_obj.active_material.diffuse_color = (0, 0, 0, 1)
+        add_material(text_obj, _ICON_TEXT_MAT_NAME, (0, 0.318546, 1, 1, 1))
+        add_material(cube_obj, _ICON_CUBE_MAT_NAME, (0, 0, 0, 1))
 
         text_obj.select_set(True)
-        cube_base_obj.select_set(True)
+        cube_obj.select_set(True)
 
     elif style == 2:
-        raise NotImplementedError(f'Not implemented style {style}')
+        text_obj = create_text_obj(char_code, _ICON_TEXT_OBJ_NAME, font_name,
+                                   0.05, 0.0, 4, (0, 0, .7))
+        bpy.ops.mesh.primitive_cube_add(enter_editmode=False,
+                                        align='WORLD',
+                                        location=(0, 0, 0),
+                                        scale=(.5, .5, .05))
+        bpy.context.object.name = _ICON_CUBE_OBJ_NAME
+        cube_obj = bpy.data.objects[_ICON_CUBE_OBJ_NAME]
+        bpy.ops.object.transform_apply(location=False,
+                                       rotation=False,
+                                       scale=True)
+
+        text_obj.select_set(True)
+        cube_obj.select_set(True)
+        bpy.ops.object.parent_set(type='OBJECT', keep_transform=False)
+
+        add_material(text_obj, _ICON_TEXT_MAT_NAME, (1, 1, 1, 1))
+        add_material(cube_obj, _ICON_CUBE_MAT_NAME, (0, 0, 0, 1))
+
+        text_obj.select_set(True)
+        cube_obj.select_set(True)
 
     elif style == 3:
         raise NotImplementedError(f'Not implemented style {style}')
@@ -105,6 +103,35 @@ def create_3d_icon(icon_name, char_code, font_name, style, output_dir, format):
                                  export_format='GLB',
                                  check_existing=False,
                                  use_selection=True)
+
+
+def create_text_obj(char_code, obj_name, font_name,
+                    extrude, bevel_depth, bevel_resolution,
+                    location):
+    bpy.ops.object.text_add(align='WORLD', location=(0,0,0),
+                            rotation=(90 * math.pi / 180, 0, 0),
+                            scale=(1,1,1))
+    bpy.context.object.name = obj_name
+    text_obj = bpy.data.objects[obj_name]
+    text_obj.data.align_x = 'CENTER'
+    text_obj.data.align_y = 'CENTER'
+    text_obj.data.body = chr(char_code)
+    text_obj.data.size = 1.0
+    text_obj.data.font = bpy.data.fonts[font_name]
+    text_obj.data.extrude = extrude
+    text_obj.data.bevel_depth = bevel_depth
+    text_obj.data.bevel_resolution = bevel_resolution
+    text_obj.location = location
+    return text_obj
+
+
+def add_material(obj, material_name, default_color):
+    if material_name in bpy.data.materials:
+        mat = bpy.data.materials[material_name]
+    else:
+        mat = bpy.data.materials.new(name=material_name)
+    obj.data.materials.append(mat)
+    obj.active_material.diffuse_color = default_color
 
 
 def load_font(font_path):
