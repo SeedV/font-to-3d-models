@@ -83,7 +83,33 @@ def create_3d_icon(icon_name, char_code, font_name, style, output_dir, format):
         cube_obj.select_set(True)
 
     elif style == 3:
-        raise NotImplementedError(f'Not implemented style {style}')
+        text_obj = create_text_obj(char_code, _ICON_TEXT_OBJ_NAME, font_name,
+                                   0.05, 0.0, 4, (0, 0, 0))
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=64, ring_count=32,
+                                             radius=1, enter_editmode=False,
+                                             align='WORLD',
+                                             location=(0, 0, 0),
+                                             scale=(.8, .8, .8))
+        bpy.context.object.name = _ICON_CUBE_OBJ_NAME
+        cube_obj = bpy.data.objects[_ICON_CUBE_OBJ_NAME]
+
+        text_obj.select_set(True)
+        bpy.ops.object.convert(target='MESH')
+
+        text_obj.select_set(False)
+        cube_obj.select_set(True)
+
+        bool_mod = cube_obj.modifiers.new(f'diff_mod', 'BOOLEAN')
+        bool_mod.solver = 'FAST'
+        bool_mod.operation = 'DIFFERENCE'
+        bool_mod.object = text_obj
+        bpy.ops.object.modifier_apply(modifier=bool_mod.name)
+
+        add_material(cube_obj, _ICON_CUBE_MAT_NAME, (0, .6, 1, 1))
+
+        text_obj.select_set(False)
+        cube_obj.select_set(True)
+
 
     # Exports the model.
     if format == 'gltf':
