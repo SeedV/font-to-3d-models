@@ -72,10 +72,12 @@ Generate 3D models for the non-space glyphs in a UTF-8 plain text file:
 
 ## Rendered 3D Glyph Models
 
-3D models A-Z, using [the Roboto font](https://fonts.google.com/specimen/Roboto):
+3D models A-Z, using [the Roboto
+font](https://fonts.google.com/specimen/Roboto):
 
 ![1.png](images/1.png)
 
-3D models '世', '界', '你', '好', using [the Noto Sans SC font](https://fonts.google.com/specimen/Noto+Sans+SC):
+3D models '世', '界', '你', '好', using [the Noto Sans SC
+font](https://fonts.google.com/specimen/Noto+Sans+SC):
 
 ![2.png](images/2.png)
