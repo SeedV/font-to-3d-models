@@ -17,27 +17,30 @@
 
 
 import argparse
+import math
 import os
 import sys
 
 
-def create_3d_model(char_code, font_name, output_dir,
-                    glyph_size, extrude, bevel_depth, bevel_resolution,
-                    format):
-    """Creates a 3D model for a single letter.
-    """
-    # Deletes all text objects.
+def reset_scene():
+    """Deletes all text objects."""
     for obj in bpy.data.objects:
         if obj.type == 'FONT':
             obj.select_set(True)
             bpy.ops.object.delete()
 
-    char_name = 'U%04X' % char_code
+
+def create_3d_model(char_code, char_name,
+                    font_name, glyph_size, extrude,
+                    bevel_depth, bevel_resolution):
+    """Creates a 3D model for a single letter."""
     print('\n-----------------------------------------------------------------')
     print(f'Generating 3D model for glyph {char_name}')
 
     # Adds a new text object.
-    bpy.ops.object.text_add()
+    bpy.ops.object.text_add(align='WORLD', location=(0,0,0),
+                            rotation=(90 * math.pi / 180, 0, 0),
+                            scale=(1,1,1))
     text_obj = bpy.data.objects['Text']
     text_obj.name = char_name
     text_obj.data.name = char_name
@@ -49,15 +52,14 @@ def create_3d_model(char_code, font_name, output_dir,
     text_obj.data.bevel_resolution = bevel_resolution
     text_obj.select_set(True)
 
-    # Exports the model.
+
+def export_models(output_dir, file_name, format):
+    """Exports the model."""
     if format == 'gltf':
         ext = 'glb'
     elif format == 'fbx':
         ext = 'fbx'
-
-    model_file = f'{char_name}.{ext}'
-    model_path = os.path.join(output_dir, model_file)
-
+    model_path = os.path.join(output_dir, f'{file_name}.{ext}')
     if format == 'gltf':
         bpy.ops.export_scene.gltf(filepath=model_path,
                                   check_existing=False,
@@ -77,7 +79,7 @@ def load_font(font_path):
     existed_num = len(bpy.data.fonts)
     bpy.ops.font.open(filepath=font_path)
     if len(bpy.data.fonts) > existed_num:
-        # TODO: Support multiple-fonts in one font file.
+        # TODO: Support variable fonts and different font weights.
         font_name = bpy.data.fonts[-1].name
         print(f'Font "{font_name}" from {font_path} is loaded.')
         return font_name
@@ -121,12 +123,22 @@ def main(args):
         for char_code in range(args.start_char_code, args.end_char_code + 1):
             add_glyph(glyphs, chr(char_code), char_code)
 
+    reset_scene()
     font_name = load_font(font_path)
     for char_code in list(glyphs):
-        create_3d_model(char_code, font_name, output_dir,
-                        args.glyph_size, args.extrude,
-                        args.bevel_depth, args.bevel_resolution,
-                        args.format)
+        if not args.batch_output:
+            reset_scene()
+        char_name = 'U%04X' % char_code
+        create_3d_model(char_code, char_name,
+                        font_name, args.glyph_size, args.extrude,
+                        args.bevel_depth, args.bevel_resolution)
+        if not args.batch_output:
+            export_models(output_dir, char_name, args.format)
+    if args.batch_output:
+        for obj in bpy.data.objects:
+            if obj.type == 'FONT':
+                obj.select_set(True)
+        export_models(output_dir, font_name, args.format)
 
 
 if __name__ == '__main__':
@@ -156,6 +168,8 @@ on how to locate the [Blender executable] on Windows/macOS/Linux.''')
                         help='The start (inclusive) of a Unicode code range.')
     parser.add_argument('-e', '--end_char_code', type=int, default=126,
                         help='The end (inclusive) of a Unicode code range.')
+    parser.add_argument('-b', '--batch_output', action='store_true',
+                        help='Whether to export models to a batch file.')
     parser.add_argument('--glyph_size', type=float, default=1.0,
                         help='The size of the generated 3D glyph.')
     parser.add_argument('--extrude', type=float, default=0.02,

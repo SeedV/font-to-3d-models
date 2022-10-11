@@ -34,6 +34,7 @@ options:
                         The start (inclusive) of a Unicode code range. (default: 33)
   -e END_CHAR_CODE, --end_char_code END_CHAR_CODE
                         The end (inclusive) of a Unicode code range. (default: 126)
+  -b, --batch_output    Whether to export models to a batch file. (default: False)
   --glyph_size GLYPH_SIZE
                         The size of the generated 3D glyph. (default: 1.0)
   --extrude EXTRUDE     The extrude of the 3D model. (default: 0.02)
