@@ -32,11 +32,25 @@ function glyph_info_to_json(fontFile, outputJson) {
     if (err != null) {
       throw `Failed to load font file ${fontFile}: ${err}`;
     }
+
+    // TODO: Include and use the font.kerningPairs map.
     const fontInfo = {}
-    fontInfo.names = font.names;
-    fontInfo.head = font.tables.head;
-    fontInfo.hhea = font.tables.hhea;
-    fontInfo.kerningPairs = font.kerningPairs;
+    fontInfo.fontFamily = font.names.fontFamily.en;
+    fontInfo.fontSubfamily = font.names.fontSubfamily.en;
+    fontInfo.fullName = font.names.fullName.en;
+    fontInfo.version = font.names.version.en;
+    fontInfo.license = font.names.license.en;
+    fontInfo.unitsPerEm = font.tables.head.unitsPerEm;
+    fontInfo.xMin = font.tables.head.xMin;
+    fontInfo.xMax = font.tables.head.xMax;
+    fontInfo.yMin = font.tables.head.yMin;
+    fontInfo.yMax = font.tables.head.yMax;
+    fontInfo.ascender = font.tables.hhea.ascender;
+    fontInfo.descender = font.tables.hhea.descender;
+    fontInfo.advanceWidthMax = font.tables.hhea.advanceWidthMax;
+    fontInfo.minLeftSideBearing = font.tables.hhea.minLeftSideBearing;
+    fontInfo.minRightSideBearing = font.tables.hhea.minRightSideBearing;
+
     fontInfo.glyphs = [];
     for (let i = 0; i < font.glyphs.length; i++) {
       const glyph = font.glyphs.glyphs[i];
@@ -44,13 +58,14 @@ function glyph_info_to_json(fontFile, outputJson) {
       if (glyph.unicode != null) {
         glyphInfo.unicode = glyph.unicode;
         glyphInfo.advanceWidth = glyph.advanceWidth;
-        glyphInfo.leftSideBearing = glyph.leftSideBearing;
-        glyphInfo.xMin = glyph.xMin;
-        glyphInfo.xMax = glyph.xMax;
-        glyphInfo.yMin = glyph.yMin;
-        glyphInfo.yMax = glyph.yMax;
+        glyphInfo.leftSideBearing =
+            glyph.leftSideBearing ? glyph.leftSideBearing : 0;
+        glyphInfo.xMin = glyph.xMin ? glyph.xMin : 0;
+        glyphInfo.xMax = glyph.xMax ? glyph.xMax : 0;
+        glyphInfo.yMin = glyph.yMin ? glyph.yMin : 0;
+        glyphInfo.yMax = glyph.yMax ? glyph.yMax : 0;
+        fontInfo.glyphs.push(glyphInfo);
       }
-      fontInfo.glyphs.push(glyphInfo);
     }
     output(outputJson, fontInfo);
   });
