@@ -136,11 +136,11 @@ def create_3d_icon(icon_name, char_code, font_name, style, output_dir, format):
 
     if format == 'gltf':
         bpy.ops.export_scene.gltf(filepath=model_path,
+                                  export_format='GLB',
                                   check_existing=False,
                                   use_selection=True)
     elif format == 'fbx':
         bpy.ops.export_scene.fbx(filepath=model_path,
-                                 export_format='GLB',
                                  check_existing=False,
                                  use_selection=True)
 
