@@ -62,11 +62,11 @@ def export_models(output_dir, file_name, format):
     model_path = os.path.join(output_dir, f'{file_name}.{ext}')
     if format == 'gltf':
         bpy.ops.export_scene.gltf(filepath=model_path,
+                                  export_format='GLB',
                                   check_existing=False,
                                   use_selection=True)
     elif format == 'fbx':
         bpy.ops.export_scene.fbx(filepath=model_path,
-                                 export_format='GLB',
                                  check_existing=False,
                                  use_selection=True)
 
